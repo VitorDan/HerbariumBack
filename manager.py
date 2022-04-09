@@ -1,8 +1,7 @@
-from api import create_app
-
-app = create_app()
-
-from api import socket,core
-    
+from distutils.log import debug
+from api import factory
+import api
+app = factory.create_app(celery=api.celery)
 if __name__ == '__main__':
-    socket.run(app, debug=True)
+    from api.factory import socket, core
+    app.run()

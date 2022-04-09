@@ -1,5 +1,5 @@
 # from sqlalchemy.sql.sqltypes import String
-from api import db_instance as db
+from api.factory import db_instance as db
 from sqlalchemy.dialects.postgresql import BIGINT as BigInt
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4

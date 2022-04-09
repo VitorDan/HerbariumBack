@@ -1,12 +1,11 @@
-from api import celery, socket
+from api import celery
 from webargs.flaskparser import parser
 from .serializers import ExsiccateSerializer, TaxonomySerializer, CollectorSerializer,LocationSerializer
 from .models import Taxonomy, Collector, Location, Exsiccate
 from flask import current_app as app
-
-
 @celery.task()#decorator
 def search(params = None, *args, **kwargs):
+    print('aqui mano')
     with app.app_context():
         if params :
             if 'id_exsiccate' not in params.keys():
@@ -25,7 +24,10 @@ def search(params = None, *args, **kwargs):
         else:
             dumps = Exsiccate().query.all()
             dumps = ExsiccateSerializer(many=True).dump(dumps)
-            return dumps
+            if len(dumps) >0:
+                return dumps
+            else:
+                return 'nenhum registro'
 
 @celery.task()#decorator
 def insert(tax=None,loc=None, col = None):

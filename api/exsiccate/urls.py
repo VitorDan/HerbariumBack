@@ -2,7 +2,6 @@
 from os import path, mkdir, walk, listdir
 from uuid import uuid4, UUID
 import time
-import json
 #frameworks imports
 from functools import wraps
 from marshmallow import ValidationError
@@ -34,9 +33,12 @@ def auth_required(fn):
 class ExsiccateRoute(MethodView):
     methods =['POST', 'GET', 'DELETE', 'PUT']
     def post(self,*args,**kwargs):
+        print(request.__dict__)
         try:
             data = parser.parse(ExsiccateSerializer(), request,location='json_or_form')
+            print('ate aqui foi')
             if request.files:
+                print('Request: ',request.__dict__)
                 tax,loc,col= data['taxonomy'],data['location'],data['collector']
                 tax,loc,col= TaxonomySerializer().load(tax),LocationSerializer().load(loc),CollectorSerializer().load(col)
                 resp = exsiccate.insert.apply_async(args = (tax,loc,col))
@@ -56,6 +58,7 @@ class ExsiccateRoute(MethodView):
         except ValidationError as err:
             return jsonify({'status' : err.errors})
     def get(self, *args, **kwargs):
+        print('nunca nem vi')
         _args = parser.parse(ExsiccateSerializer(),request,location='json')
         image_list = []
         result = None
@@ -73,15 +76,16 @@ class ExsiccateRoute(MethodView):
                 'json': jsonify(exs),
                 'images': result
             }
-            if len(exs) == 1:
-                
-                id = exs[0]['id_exsiccate']
-            print(result)
+            if len(exs.get()) == 0:
+                return jsonify('sem dados')
             return jsonify(exs.get())
         else:
             exs = exsiccate.search.apply_async()
-            response = make_response(Response(response = {'data': json.dumps(exs.get())},headers ={'Accept-Encoding': '*'},mimetype = 'multipart/form-data'))
-            print(response)
+            # response = make_response(Response(response = {'data': json.dumps(exs.get())},headers ={'Accept-Encoding': '*'},mimetype = 'multipart/form-data'))
+            # print(response)
+            print(len(exs.get()))
+            if len(exs.get()) == 0:
+                return jsonify('sem dados')
             return jsonify(exs.get())
     def delete(self, *args,**kwargs):
         id = parser.parse({'id_exsiccate': fields.UUID()}, request, location='querystring')
@@ -96,9 +100,8 @@ class ExsiccateRoute(MethodView):
         return jsonify({'status': 'Due'})
 
 class LoginRoute(MethodView):
-    methods = ['POST']
+    methods = ['POST','GET']
     def post(self,**kwargs):
-        print(request.json)
         if (request.json["email"] == "plante_com_amor@gmail.com" and request.json["password"] == "12345"):
             return jsonify({'token': '2wsadsadklakdl'})
         abort(400)

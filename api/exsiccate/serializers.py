@@ -1,5 +1,5 @@
 import json
-from api import ma_instance as ma
+from api.factory import ma_instance as ma
 from .models import Taxonomy, Location, Collector, Exsiccate, db
 from sqlalchemy.orm import sessionmaker
 from marshmallow import pre_load, post_dump

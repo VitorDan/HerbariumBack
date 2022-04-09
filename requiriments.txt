@@ -1,19 +1,23 @@
-flask = "*"
-flask-cors = "*"
-flask-marshmallow = "*"
-flask-migrate = "*"
-flask-sqlalchemy = "*"
-flask-socketio = "*"
-flask-login = "*"
-sqlalchemy = "*"
-marshmallow = "*"
-marshmallow-sqlalchemy = "*"
-psycopg2-binary = "*"
-webargs = "*"
-celery = {extras = ["amqp", "redis","eventlet"], version = "*"}
-redis = "*"
-amqp = "*"
-eventlet = "*"
-python-socketio = "*"
-python-engineio = "*"
-pillow = "*"
+flask
+flask-cors
+Flask-Execute
+flask-marshmallow
+flask-migrate
+flask-sqlalchemy
+flask-socketio
+flask-login
+sqlalchemy
+marshmallow
+marshmallow-sqlalchemy
+psycopg2-binary
+webargs
+redis
+amqp
+eventlet
+python-socketio
+python-engineio
+celery
+celery[redis]
+celery[rabbitmq]
+celery[eventlet]
+

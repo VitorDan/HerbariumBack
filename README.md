@@ -1,2 +1,0 @@
-# HerbariumBack
-Herbarium Backend
