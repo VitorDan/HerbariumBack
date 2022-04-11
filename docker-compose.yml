@@ -1,4 +1,9 @@
 version: "3.9"
+volumes:
+  postgres:
+    external: false
+  postgres_config:
+    external: false
 services:
   db:
     image: postgres:14.2-alpine

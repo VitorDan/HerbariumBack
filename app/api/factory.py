@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_socketio import SocketIO
+from flask_login import LoginManager
 from os import path
 from .cutils import init_celery
 import config
@@ -16,6 +17,7 @@ migrate = Migrate()
 ma_instance = Marshmallow()
 core = CORS()
 socket = SocketIO()
+login = LoginManager()
 
 
 def create_app(app_name=PROJECT_PATH, **kwargs):
@@ -25,6 +27,7 @@ def create_app(app_name=PROJECT_PATH, **kwargs):
     migrate.init_app(app, db_instance)
     core.init_app(app, resources={r"/*": {"origins": "*"}})
     socket.init_app(app,cors_allowed_origins='*', async_mode='threading')
+    login.init_app(app)
     if kwargs.get("celery"):
         init_celery(app, kwargs.get("celery"))
     with app.app_context():

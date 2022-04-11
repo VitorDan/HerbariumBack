@@ -5,7 +5,6 @@ from .models import Taxonomy, Collector, Location, Exsiccate
 from flask import current_app as app
 @celery.task()#decorator
 def search(params = None, *args, **kwargs):
-    print('aqui mano')
     with app.app_context():
         if params :
             if 'id_exsiccate' not in params.keys():
@@ -31,7 +30,6 @@ def search(params = None, *args, **kwargs):
 
 @celery.task()#decorator
 def insert(tax=None,loc=None, col = None):
-    print(tax)
     with app.app_context():
         taxonomy = Taxonomy(**tax)
         if taxonomy:

@@ -4,7 +4,7 @@ class DevConf:
     DIRECTORY = path.abspath(path.dirname(__file__))
     SECRET_KEY = 'abcdasklcx'
     #SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:263854@0.0.0.0:5432/herbarium'
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:12345@herbariumdb/herbarium'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:12345@localhost:5432/herbarium'
     SQLALCHEMY_TRACK_MODIFICATIONS= False
     UPLOAD_FOLDER = DIRECTORY + '/upload/'
 
