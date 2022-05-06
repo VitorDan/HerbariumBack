@@ -1,10 +1,11 @@
 #python imports
+from ast import arg
 from os import path, mkdir, walk, listdir
 from uuid import uuid4, UUID
 import time
 #frameworks imports
 from functools import wraps
-from marshmallow import ValidationError
+from marshmallow import ValidationError, EXCLUDE
 from flask import current_app as app
 from flask import jsonify, request, make_response, abort
 from flask.views import  MethodView
@@ -56,26 +57,26 @@ class ExsiccateRoute(MethodView):
                 else:
                    return jsonify({'status':'isso n deveria acontecer'})   
         except ValidationError as err:
+            print('Validation Error')
             return jsonify({'status' : err.errors})
     def get(self, *args, **kwargs):
-        print('nunca nem vi')
-        _args = parser.parse(ExsiccateSerializer(),request,location='json')
+        _args = parser.parse(ExsiccateSerializer(),request,unknown=EXCLUDE,location='querystring')
         image_list = []
         result = None
-        if _args:
-            exs = exsiccate.search.apply_async(params =_args)
-            dir = path.join(app.config['UPLOAD_FOLDER']+ UUID(exs[0]['id_exsiccate']).hex)
-            i = None
-            if path.isdir(dir):
-                for root, dirs, files in walk(dir, topdown=False):
-                    # result  = send_file((root+'/'+ i for i in files), mimetype='image/png',as_attachment=True)
-                    for i in files:
-                        result = send_file(root+'/'+i, mimetype='image/png',as_attachment=True)
-                        print(result)      
-            response = {
-                'json': jsonify(exs),
-                'images': result
-            }
+        if _args is not None:
+            exs = exsiccate.search.apply_async(args=[_args])
+            # dir = path.join(app.config['UPLOAD_FOLDER']+ UUID(exs[0]['id_exsiccate']).hex)
+            # i = None
+            # if path.isdir(dir):
+            #     for root, dirs, files in walk(dir, topdown=False):
+            #         # result  = send_file((root+'/'+ i for i in files), mimetype='image/png',as_attachment=True)
+            #         for i in files:
+            #             result = send_file(root+'/'+i, mimetype='image/png',as_attachment=True)
+            #             print(result)
+            # response = {
+            #     'json': jsonify(exs),
+            #     'images': result
+            # }
             if len(exs.get()) == 0:
                 return jsonify('sem dados')
             return jsonify(exs.get())
@@ -83,7 +84,6 @@ class ExsiccateRoute(MethodView):
             exs = exsiccate.search.apply_async()
             # response = make_response(Response(response = {'data': json.dumps(exs.get())},headers ={'Accept-Encoding': '*'},mimetype = 'multipart/form-data'))
             # print(response)
-            print(len(exs.get()))
             if len(exs.get()) == 0:
                 return jsonify('sem dados')
             return jsonify(exs.get())

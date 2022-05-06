@@ -17,7 +17,7 @@ migrate = Migrate()
 ma_instance = Marshmallow()
 core = CORS()
 socket = SocketIO()
-login = LoginManager()
+login_manager = LoginManager()
 
 
 def create_app(app_name=PROJECT_PATH, **kwargs):
@@ -27,12 +27,13 @@ def create_app(app_name=PROJECT_PATH, **kwargs):
     migrate.init_app(app, db_instance)
     core.init_app(app, resources={r"/*": {"origins": "*"}})
     socket.init_app(app,cors_allowed_origins='*', async_mode='threading')
-    login.init_app(app)
+    login_manager.init_app(app)
     if kwargs.get("celery"):
         init_celery(app, kwargs.get("celery"))
     with app.app_context():
         from api.exsiccate import urls
+        from api.users import auth 
         app.add_url_rule('/exsiccate/', view_func=urls.ExsiccateRoute.as_view('exsiccate'))
-        app.add_url_rule('/auth/login', view_func=urls.LoginRoute.as_view('login'))
+        # app.add_url_rule('/auth/login', view_func=urls.LoginRoute.as_view('login'))
         db_instance.create_all()
         return app

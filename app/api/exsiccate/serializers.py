@@ -57,7 +57,7 @@ class ExsiccateSerializer(ma.SQLAlchemySchema):
         if 'exsiccate' in data.keys():
             data_transformed  = json.loads(data['exsiccate'])
             return data_transformed
-        else: 
+        else:
             return data
     @post_dump
     def post_process(self,data,**kwargs):

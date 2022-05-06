@@ -6,7 +6,9 @@ from flask import current_app as app
 @celery.task()#decorator
 def search(params = None, *args, **kwargs):
     with app.app_context():
-        if params :
+        print(f'params:{params}')
+        if params is not None:
+            print('here')
             if 'id_exsiccate' not in params.keys():
                 dumps = Exsiccate.query.join(Exsiccate.taxon).filter_by(**params['taxonomy'] if 'taxonomy' in params.keys() else {})\
                                 .join(Exsiccate.loco).filter_by(**params['location'] if 'location' in params.keys() else {})\
@@ -21,13 +23,13 @@ def search(params = None, *args, **kwargs):
                 dumps = ExsiccateSerializer(many=True).dump(dumps)
                 return dumps
         else:
+            print('uai')
             dumps = Exsiccate().query.all()
             dumps = ExsiccateSerializer(many=True).dump(dumps)
             if len(dumps) >0:
                 return dumps
             else:
                 return 'nenhum registro'
-
 @celery.task()#decorator
 def insert(tax=None,loc=None, col = None):
     with app.app_context():
@@ -69,3 +71,7 @@ def update(id, params):
             if col:
                 exsiccate.col.committed()
         exsiccate.committed()
+@celery.task()
+def upload(files):
+    with app.app_context():
+        ...
