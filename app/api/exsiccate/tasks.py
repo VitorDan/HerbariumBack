@@ -71,7 +71,4 @@ def update(id, params):
             if col:
                 exsiccate.col.committed()
         exsiccate.committed()
-@celery.task()
-def upload(files):
-    with app.app_context():
-        ...
+
