@@ -13,8 +13,7 @@ from flask.wrappers import Response
 from webargs.flaskparser import parser
 from marshmallow import fields
 #app imports
-from api.exsiccate.models import Exsiccate
-from .serializers\
+from api.serializers\
      import CollectorSerializer, LocationSerializer, TaxonomySerializer, ExsiccateSerializer
 from api.exsiccate import tasks as exsiccate
 

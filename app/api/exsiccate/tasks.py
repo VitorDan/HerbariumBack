@@ -1,7 +1,7 @@
 from api import celery
 from webargs.flaskparser import parser
-from .serializers import ExsiccateSerializer, TaxonomySerializer, CollectorSerializer,LocationSerializer
-from .models import Taxonomy, Collector, Location, Exsiccate
+from api.models import Taxonomy, Collector, Location, Exsiccate
+from api.serializers import ExsiccateSerializer
 from flask import current_app as app
 @celery.task()#decorator
 def search(params = None, *args, **kwargs):
