@@ -12,6 +12,7 @@ from flask.views import  MethodView
 from flask.wrappers import Response
 from webargs.flaskparser import parser
 from marshmallow import fields
+from api.images import getImages, requestImageDir
 #app imports
 from api.serializers\
      import CollectorSerializer, LocationSerializer, TaxonomySerializer, ExsiccateSerializer
@@ -48,6 +49,8 @@ class ExsiccateRoute(MethodView):
                 files = request.files
                 if resp not in listdir(dir):
                     mkdir(dir+'/'+resp)
+                    for index, value in enumerate(files):
+                        print(index,files[value])
                     for i in files:
                         files[i].save(path.join(dir+'/'+resp, uuid4().hex + '.png'))
                     # return jsonify({'status' : "Exsicata Salva"})
@@ -77,12 +80,15 @@ class ExsiccateRoute(MethodView):
             #     'images': result
             # }
             if len(exs.get()) == 0:
+                getImages(app.config['UPLOAD_FOLDER'])
+                requestImageDir('944475cb-36a0-4096-acc9-819441e6221a')
                 return jsonify('sem dados')
             return jsonify(exs.get())
         else:
             exs = exsiccate.search.apply_async()
             # response = make_response(Response(response = {'data': json.dumps(exs.get())},headers ={'Accept-Encoding': '*'},mimetype = 'multipart/form-data'))
             # print(response)
+            requestImageDir('944475cb-36a0-4096-acc9-819441e6221a')
             if len(exs.get()) == 0:
                 return jsonify('sem dados')
             return jsonify(exs.get())
