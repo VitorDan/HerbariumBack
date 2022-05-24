@@ -17,6 +17,15 @@ services:
     volumes:
       - postgres:/var/lib/postgres
       - postgres_config:/etc/postgres
+  admdb:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@email.com
+      - PGADMIN_DEFAULT_PASSWORD=12345
+    ports:
+      - 80:80
+      - 443:443
   redis:
     image: redis:7.0-rc2-alpine3.15
     container_name: redis

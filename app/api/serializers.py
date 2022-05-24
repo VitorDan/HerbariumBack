@@ -1,6 +1,6 @@
 import json
 from api.factory import ma_instance as ma
-from .models import Taxonomy, Location, Collector, Exsiccate, db
+from .models import Taxonomy, Location, Collector, Exsiccate, Image, db
 from sqlalchemy.orm import sessionmaker
 from marshmallow import pre_load, post_dump
 Session = sessionmaker(bind=db)
@@ -43,6 +43,16 @@ class CollectorSerializer(ma.SQLAlchemySchema):
         model = Collector
         sqla_session = Session
         ordered = True 
+class ImageSerializer(ma.SQLAlchemySchema):
+    id_image = ma.auto_field()
+    image_extension = ma.auto_field()
+    # @post_dump
+    # def post_process(self,data,**kwargs):
+    #     print(data)
+    #     return data
+    class Meta:
+        model = Image
+        sqla_session = Session
 class ExsiccateSerializer(ma.SQLAlchemySchema):
     id_exsiccate = ma.auto_field()
     id_taxonomy = ma.auto_field()
@@ -51,7 +61,7 @@ class ExsiccateSerializer(ma.SQLAlchemySchema):
     taxonomy = ma.Nested(TaxonomySerializer)
     location= ma.Nested(LocationSerializer)
     collector = ma.Nested(CollectorSerializer)
-    
+    images = ma.Nested(ImageSerializer)
     @pre_load
     def pre_processes(self,data, **kwargs):
         if 'exsiccate' in data.keys():
@@ -61,13 +71,21 @@ class ExsiccateSerializer(ma.SQLAlchemySchema):
             return data
     @post_dump
     def post_process(self,data,**kwargs):
+        print("DATA: ------",data)
+        images =[]
         tax = Taxonomy.query.filter_by(id_taxonomy = data['id_taxonomy']).first()
         loc = Location.query.filter_by(id_location = data['id_location']).first()
         col = Collector.query.filter_by(id_collector = data['id_collector']).first()
         tax = TaxonomySerializer().dump(tax)
         loc = LocationSerializer().dump(loc)
         col = CollectorSerializer().dump(col)
-        return {'id_exsiccate':data['id_exsiccate'],'taxonomy':tax,'location':loc,'collector':col}
+        exs = Exsiccate.query.filter_by(id_exsiccate= data['id_exsiccate']).first()
+        img = ImageSerializer()
+        for i in exs.images:
+            ref =  img.dump(i)
+            name = ref['id_image']+'.'+ref['image_extension']
+            images.append(name)
+        return {'id_exsiccate':data['id_exsiccate'],'taxonomy':tax,'location':loc,'collector':col, 'imagens':images}
     class Meta:
         model = Exsiccate
         ordered = True 

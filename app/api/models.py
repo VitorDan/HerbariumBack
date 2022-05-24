@@ -3,6 +3,15 @@ from api.factory import db_instance as db
 from sqlalchemy.dialects.postgresql import BIGINT as BigInt
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
+
+
+
+images_association = db.Table('images_association', db.Model.metadata,
+    db.Column('exsiccate_id', UUID(as_uuid=True), db.ForeignKey('exsiccate.id_exsiccate')),
+    db.Column('image_id', UUID(as_uuid=True), db.ForeignKey('image.id_image'))
+)
+
+
 class Taxonomy(db.Model):
     __tablename__ = 'taxonomy'
     id_taxonomy = db.Column(UUID(as_uuid=True),primary_key=True, default=uuid4,unique=True)
@@ -72,6 +81,19 @@ class Exsiccate(db.Model):
     taxon = db.relationship('Taxonomy', cascade="all,delete",uselist=False,back_populates='exsiccate',lazy = "select")
     loco = db.relationship('Location', cascade="all,delete",uselist=False, back_populates='exsiccate',lazy = "select")
     col = db.relationship('Collector',cascade="all,delete",back_populates='exsiccate',lazy = "select")
+    images = db.relationship('Image',cascade="all,delete",secondary=images_association,backref=db.backref('exsiccate', lazy=True))
+    def save(self):
+        db.session.add(self)
+        return db.session.commit()
+    def committed(self):
+        return db.session.commit()
+    def destroy(self):
+        db.session.delete(self)
+        return db.session.commit()
+class Image(db.Model):
+    __tablename__= 'image'
+    id_image = db.Column(UUID(as_uuid=True),primary_key=True, default=uuid4,unique=True)
+    image_extension = db.Column(db.String(3))
     def save(self):
         db.session.add(self)
         return db.session.commit()

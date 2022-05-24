@@ -1,6 +1,7 @@
+from os import path, mkdir, walk, listdir
 from api import celery
 from webargs.flaskparser import parser
-from api.models import Taxonomy, Collector, Location, Exsiccate
+from api.models import Image, Taxonomy, Collector, Location, Exsiccate
 from api.serializers import ExsiccateSerializer
 from flask import current_app as app
 @celery.task()#decorator
@@ -34,16 +35,16 @@ def search(params = None, *args, **kwargs):
 def insert(tax=None,loc=None, col = None):
     with app.app_context():
         taxonomy = Taxonomy(**tax)
-        if taxonomy:
+        if taxonomy is not None:
             taxonomy.save()
         location = Location(**loc)
-        if location:
+        if location is not None:
             location.save()
         collector = Collector(**col)
-        if collector:
+        if collector is not None:
             collector.save()
         exsiccate = Exsiccate(**{'id_taxonomy':taxonomy.id_taxonomy,'id_location':location.id_location,'id_collector':collector.id_collector})
-        if exsiccate:
+        if exsiccate is not None:
             exsiccate.save()
             return exsiccate.id_exsiccate
 @celery.task() #decorator
@@ -71,4 +72,30 @@ def update(id, params):
             if col:
                 exsiccate.col.committed()
         exsiccate.committed()
-
+@celery.task()
+def saveImages(id_exsiccate,extension):
+    with app.app_context():
+        exsiccate = Exsiccate.query.filter_by(id_exsiccate=id_exsiccate).first()
+        files = []
+        # print('AQUI __________________________________________')
+        absPath = path.join(app.config['UPLOAD_FOLDER'])
+        if id_exsiccate.hex not in listdir(absPath):
+            alterPath = absPath + '/' + id_exsiccate.hex
+            mkdir(alterPath)
+            image =  Image(**{'image_extension':extension})
+            if image is not None:
+                image.save()
+            exsiccate.images.append(image)
+            exsiccate.save()
+            absPath = alterPath + '/'+image.id_image.hex+'.'+image.image_extension
+            return absPath
+        else:
+            alterPath = absPath + '/' + id_exsiccate.hex
+            image =  Image(**{'image_extension':extension})
+            if image is not None:
+                image.save()
+            exsiccate.images.append(image)
+            exsiccate.save()
+            absPath = alterPath + '/'+image.id_image.hex+'.'+image.image_extension
+            return absPath
+        return -1

@@ -2,6 +2,7 @@ from glob import glob
 from os import path
 from flask import current_app as app
 from api import celery
+from api.models import Image
 def getImages(absPath):
     print('Images here ......................')
     namesImages  = glob(absPath+'/'+'*')

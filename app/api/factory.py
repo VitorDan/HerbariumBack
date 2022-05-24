@@ -28,7 +28,7 @@ def create_app(app_name=PROJECT_PATH, **kwargs):
     if kwargs.get("celery"):
         init_celery(app, kwargs.get("celery"))
     with app.app_context():
-        from api.exsiccate import urls
+        from api.exsiccate import urls, test
         from api.users import auth 
         app.add_url_rule('/exsiccate/', view_func=urls.ExsiccateRoute.as_view('exsiccate'))
         # app.add_url_rule('/auth/login', view_func=urls.LoginRoute.as_view('login'))

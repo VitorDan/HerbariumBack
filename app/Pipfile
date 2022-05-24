@@ -25,6 +25,7 @@ Flask-SocketIO = "*"
 Flask-Login = "*"
 SQLAlchemy = "*"
 werkzeug = "*"
+flask-oauthlib = "*"
 
 [dev-packages]
 

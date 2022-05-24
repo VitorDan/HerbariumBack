@@ -1,5 +1,4 @@
 #python imports
-from ast import arg
 from os import path, mkdir, walk, listdir
 from uuid import uuid4, UUID
 import time
@@ -34,30 +33,24 @@ def auth_required(fn):
 class ExsiccateRoute(MethodView):
     methods =['POST', 'GET', 'DELETE', 'PUT']
     def post(self,*args,**kwargs):
-        print(request.__dict__)
+        print('json::::::',request.form)
         try:
-            data = parser.parse(ExsiccateSerializer(), request,location='json_or_form')
-            print('ate aqui foi')
-            if request.files:
-                print('Request: ',request.__dict__)
+            data = request.form.copy()
+            data = ExsiccateSerializer().loads(data['json'])
+            # print(request.form)
+            files = request.files.copy()
+            print(files.keys())
+            if files is not None:
                 tax,loc,col= data['taxonomy'],data['location'],data['collector']
                 tax,loc,col= TaxonomySerializer().load(tax),LocationSerializer().load(loc),CollectorSerializer().load(col)
                 resp = exsiccate.insert.apply_async(args = (tax,loc,col))
-                #inside task
-                resp = resp.get()
-                dir = path.join(app.config['UPLOAD_FOLDER'])
-                files = request.files
-                if resp not in listdir(dir):
-                    mkdir(dir+'/'+resp)
-                    for index, value in enumerate(files):
-                        print(index,files[value])
-                    for i in files:
-                        files[i].save(path.join(dir+'/'+resp, uuid4().hex + '.png'))
-                    # return jsonify({'status' : "Exsicata Salva"})
-                    return jsonify({'status' : resp})
-
-                else:
-                   return jsonify({'status':'isso n deveria acontecer'})   
+                id_exsiccate = resp.wait()
+                for i in files:
+                    extension = files[i].filename.split('.')[-1]
+                    savePath = exsiccate.saveImages.s(id_exsiccate,extension ).apply_async().wait()
+                    print(savePath)
+                    files[i].save(savePath)
+                return jsonify({'status': id_exsiccate})
         except ValidationError as err:
             print('Validation Error')
             return jsonify({'status' : err.errors})
@@ -101,7 +94,6 @@ class ExsiccateRoute(MethodView):
         id = parser.parse({'id_exsiccate': fields.UUID()}, request, location='querystring')
         _args = parser.parse(ExsiccateSerializer(),request,location='json')
         exsiccate.update.apply_async(id = id, params = _args)
-        time.sleep(0.5)
         return jsonify({'status': 'Due'})
 
 class LoginRoute(MethodView):
@@ -114,14 +106,3 @@ class LoginRoute(MethodView):
     def get(self, **kwargs):
         print(request.headers)
         return jsonify(response)
-# @socket.on('connect')
-# def connectExsiccate(*args, **kwargs):
-#     print('connected')
-
-# @socket.on('connect', namespace='/exsiccate')
-# def connectExsiccate():
-#     print('connected')
-# @socket.on('search', namespace='/exsiccate')
-# def search_socks():
-#     print('ola mundo')
-#     search.apply_async()

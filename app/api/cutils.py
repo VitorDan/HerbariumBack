@@ -1,3 +1,4 @@
+import celery_config as c 
 def init_celery(app,celery):
     celery.conf.update(app.config)
     BaseTask = celery.Task
