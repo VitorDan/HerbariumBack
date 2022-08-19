@@ -33,7 +33,7 @@ def auth_required(fn):
 class ExsiccateRoute(MethodView):
     methods =['POST', 'GET', 'DELETE', 'PUT']
     def post(self,*args,**kwargs):
-        print('json::::::',request.form)
+        # print('json::::::',request.form)
         try:
             data = request.form.copy()
             data = ExsiccateSerializer().loads(data['json'])

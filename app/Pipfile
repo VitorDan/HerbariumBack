@@ -26,6 +26,10 @@ Flask-Login = "*"
 SQLAlchemy = "*"
 werkzeug = "*"
 flask-oauthlib = "*"
+pyjwt = "*"
+pillow = "*"
+pylint = "*"
+graphviz = "*"
 
 [dev-packages]
 

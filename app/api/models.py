@@ -1,7 +1,9 @@
 # from sqlalchemy.sql.sqltypes import String
+from email.policy import default
 from api.factory import db_instance as db
 from sqlalchemy.dialects.postgresql import BIGINT as BigInt
 from sqlalchemy.dialects.postgresql import UUID
+from werkzeug.security import generate_password_hash, check_password_hash as check
 from uuid import uuid4
 
 
@@ -102,3 +104,26 @@ class Image(db.Model):
     def destroy(self):
         db.session.delete(self)
         return db.session.commit()
+
+class User(db.Model):
+    __tablename__= 'user'
+    id_user = db.Column(UUID(as_uuid=True),primary_key=True, default=uuid4,unique=True)
+    user_mail = db.Column(db.String(120))
+    user_pass = db.Column(db.String(120))
+    user_token = db.Column(db.String(512),default='')
+    user_cite = db.Column(db.String(10),default='')
+    user_inst = db.Column(db.String(120),default='')
+
+    def save(self):
+        db.session.add(self)
+        return db.session.commit()
+    def committed(self):
+        return db.session.commit()
+    def destroy(self):
+        db.session.delete(self)
+        return db.session.commit()
+    def login(self,mail,password):
+        user  = self.query.filter_by(user_mail=mail).first()
+        if not user or not check(user.user_pass,password):
+            return
+        return user

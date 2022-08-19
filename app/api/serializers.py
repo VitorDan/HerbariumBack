@@ -1,8 +1,9 @@
 import json
 from api.factory import ma_instance as ma
-from .models import Taxonomy, Location, Collector, Exsiccate, Image, db
+from .models import Taxonomy, Location, Collector, Exsiccate, Image, User, db
 from sqlalchemy.orm import sessionmaker
 from marshmallow import pre_load, post_dump
+from uuid import UUID
 Session = sessionmaker(bind=db)
 class TaxonomySerializer(ma.SQLAlchemySchema):
     id_taxonomy = ma.auto_field()
@@ -83,10 +84,20 @@ class ExsiccateSerializer(ma.SQLAlchemySchema):
         img = ImageSerializer()
         for i in exs.images:
             ref =  img.dump(i)
-            name = ref['id_image']+'.'+ref['image_extension']
+            name = UUID(ref['id_image'])
+            name = name.hex +'.'+ref['image_extension']
             images.append(name)
-        return {'id_exsiccate':data['id_exsiccate'],'taxonomy':tax,'location':loc,'collector':col, 'imagens':images}
+        return {'id_exsiccate':data['id_exsiccate'],'taxonomy':tax,'location':loc,'collector':col,'imagens':images}
     class Meta:
         model = Exsiccate
         ordered = True 
         sqla_session = Session
+
+class UserSerializer(ma.SQLAlchemySchema):
+    id_user = ma.auto_field()
+    user_mail = ma.auto_field()
+    user_token =ma.auto_field()
+    class Meta:
+        model = User
+        sqla_session = Session
+        ordered = True 
